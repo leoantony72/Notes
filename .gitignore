@@ -1,0 +1,7 @@
+# Ignore the entire .obsidian folder by default
+.obsidian/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+desktop.ini
