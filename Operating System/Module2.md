@@ -13,7 +13,7 @@
 
 ## 1.Process-and-Process-State
 ---------
-![[multiple-process.png]]
+![](../multiple-process.png)
 When a program is executed, It becomes a process. A process is a program in execution. It is an active entity and dynamically changing. An OS considers processes as units of program execution or simply computation. A process contains application program (sequence of instructions) and data (arguments, variables etc...). A single program can have multiple processes running at the same time on a given machine even if the system has only 1 core.
 
 Some of the processes can belong to application programs or user programs (called user processes), and some OS programs (called kernel processes).
@@ -29,7 +29,7 @@ Each process holds some attributes given by the OS as follows.
    3. dynamic data in the form of **heap** and **stack**
 
 Kernel processes reside in kernel space (of main memory), execute OS kernel code in kernel mode, while user processes remain in user space and run user code in user mode and can make system calls 
-![[Different_parts_of_process_addressspace.png]]
+![](../Different_parts_of_process_addressspace.png)
 
 ### Process address space
 When a program is executed, It is allocated space in the main memory. The space is called process address space. The space may be physically contiguous or non-contiguous depending on the memory allocation technique used by the OS.
@@ -125,7 +125,7 @@ There are two categories of threads: user level threads (ULTs) and kernel level 
 	ULTs are entirely managed by threads library and any communication from an ULT to kernel can happen only on behalf of the entire process.
 	
 	**Advantages**: 
-	Since ULTs are managed in user space, thread management does not require any mode switch (user to kernel mode).  Thread switching is less costly in space and time than context switching.  Application programs need not be changed depending on whether the OS supports multi-threading or not. 
+	Since ULTs are managed in user space, thread management does not require any mode switch (user to kernel mode). Thread switching is less costly in space and time than context switching. Application programs need not be changed depending on whether the OS supports multi-threading or not. 
 	
 	**Disadvantages**: 
 	Thread-level concurrency is limited as true parallel execution is not possible
@@ -138,7 +138,7 @@ In a pure kernel level threading system, all threads are managed by the OS kerne
 KLTs help to achieve true parallelism and provide substantial speed up in execution.
 
 **Disadvantages**: 
-Since thread management happens in kernel space, every thread switch results in a mode switch (user mode to kernel mode and vice versa). Mode switch is an order of magnitude more time-consuming than a pure ULT switch.  KLTs have scalability issues. When a very high number of KLTs are required, kernel space requirement also increases leading to burdening the system in main memory space usage.
+Since thread management happens in kernel space, every thread switch results in a mode switch (user mode to kernel mode and vice versa). Mode switch is an order of magnitude more time-consuming than a pure ULT switch. KLTs have scalability issues. When a very high number of KLTs are required, kernel space requirement also increases leading to burdening the system in main memory space usage.
 
 additional knowledge:
 - Mixed or Combined approach(one-to-one, many-to-one, many-to-many)
