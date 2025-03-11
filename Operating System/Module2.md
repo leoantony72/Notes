@@ -162,3 +162,6 @@ CPU scheduling is managed by an OS program - known as CPU scheduler. The schedul
 		- ensure context switch from one process to another
 		- switch to user mode (from kernel mode), 
 		- pointing to the appropriate location in the user program to start / resume the process. 
+
+
+Hello
