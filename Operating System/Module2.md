@@ -13,7 +13,7 @@
 
 ## 1.Process-and-Process-State
 ---------
-![](images/multiple-process.png)
+![](./images/multiple-process.png)
 When a program is executed, It becomes a process. A process is a program in execution. It is an active entity and dynamically changing. An OS considers processes as units of program execution or simply computation. A process contains application program (sequence of instructions) and data (arguments, variables etc...). A single program can have multiple processes running at the same time on a given machine even if the system has only 1 core.
 
 Some of the processes can belong to application programs or user programs (called user processes), and some OS programs (called kernel processes).
