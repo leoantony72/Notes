@@ -4,9 +4,9 @@
 2. [Process Control Block (PCB)](#2.Process-Control-Block-(PCB))
 3. [Threads](#3.Threads)
 4. [Scheduling](#4.Scheduling)
-5. Process Scheduling – Basic concepts, Scheduling Criteria
-6. Scheduling algorithms - Basics
-7. First come First Served, Shortest Job First
+5. [Scheduling algorithms](#5.Scheduling-Algorithm)
+6. [First come First Served](#6.First-come-First-Served)
+7. [Shortest Job First](#7.Shortest-Job-First)
 8. Priority scheduling, Round Robin Scheduling
 9. Operations on processes: process creation and termination
 10. Inter-process communication: Shared memory systems, Message Passing
@@ -147,7 +147,7 @@ additional knowledge:
 
 ## 4.Scheduling
 ------
-In a multiprogramming system where several processes are waiting to access a CPU core, keeping the CPU idle is a waste of time. To maximize the performance of a system, the CPU utilization should be maximum. Whenever a CPU is free, we should allow other processes to use it. But in a single point in time, only one process can use the CPU. 
+In a multiprogramming system where several processes are waiting to access a CPU core, keeping the CPU idle is a waste of time. To maximize the performance of a system, the CPU utilization should be maximum. Whenever a CPU is free, we should allow other processes to use it. But in a single point in time, only one process can use the CPU( a single core ). 
 
 CPU scheduling is managed by an OS program - known as CPU scheduler. The scheduler runs in quick intervals, checks the queue of ready processes and allocates a CPU core to one process when the core is free.
 
@@ -162,3 +162,60 @@ CPU scheduling is managed by an OS program - known as CPU scheduler. The schedul
 		- ensure context switch from one process to another
 		- switch to user mode (from kernel mode), 
 		- pointing to the appropriate location in the user program to start / resume the process. 
+
+### Scheduling Criteria
+
+**CPU Utilization**: Utilization of any resource is defined as a ratio of its busy time and total time including its idle time. Hence,
+
+**CPU Utilization** = $CPU busy time/CPU total time = CPU busy time/CPU busy time + CPU idle time$
+
+**Throughput**: In case of CPU scheduling, it is defined as the number of processes completed in unit time (say in 1 second).
+
+**Turnaround Time**: It is the total time since a process is created to the time of its completion. Hence, it is the **sum of wait time in the ready queue, CPU execution time, wait time in the I/O queue and time for doing I/O**. 
+
+**TurnAround Time** = $totalWaitTime In Ready Q + total Execution Time In CPU +$
+$total Wait Time In I/O Queue + total Time Doing I/O$
+
+
+**!!IMPORTANT**: For any process, instruction execution in CPU and I/O activities are not contiguous. Both these activities rather happen in spells - few CPU bound instructions are followed by an I/O bound action and then again CPU bound instructions and so on. These spells are also called bursts. A CPU burst (a continuous sequence of CPU-bound instructions) is followed by an I/O burst and vice versa. Any process can be considered as a sequence of several CPU bursts and I/O bursts having start and end mandatorily with CPU bursts.
+
+**Burst Time**: It is defined as the time spent for executing the activity in the burst excluding the wait time in the queue.
+
+**Waiting Time**: A process has to wait for any resources if there is a high demand for the resource. Every resource is generally associated with a queue. Waiting time is the time spent in the queue for the resource starting from joining the queue to using the resource.
+
+
+## 5.Scheduling-Algorithm
+----
+
+CPU allocation or scheduling is to be done when there is at least one process in the ready queue and a CPU core is idle. For a single-process system, this is a trivial case and does not need any policy or algorithms. However, in a multiprogram environment (no matter whether a single core CPU or a multi-core one or multiple CPUs, number of processes are often way higher than the number of available cores), several processes contest to get a CPU core for executing instructions. We need a scheduling policy to determine which process will get the chance first and next, when and for how long. Scheduling algorithms implement one or more of such policies.
+
+CPU scheduling is needed under the following circumstances. 
+1. A newly created process joins the ready queue, and the process needs to be immediately executed. 
+2. the time slice allocated to a process is over and another process needs to get the CPU. 
+3. a process needs an I/O before it can proceed any further. 
+4. a process waits for its children to complete first before it proceeds further. 
+5. a process waits for some interrupt (other than timer) and the interrupt occurs. 
+6. a process completes its execution.
+
+### preemptive algorithm
+
+In this type of algorithm the scheduler can force the running process to evict the CPU. If scheduling algorithms allow forceful eviction (or preemption) of the CPU, they are called preemptive algorithms.
+
+Eg: Shortest Job First (SJF) Algorithm, Round Robin
+
+#### non-preemptive algorithms
+
+When no preemption is allowed and the process can only voluntarily release CPU, these scheduling algorithms are called non-preemptive algorithms.
+
+non-preemptive algorithms have the potential to monopolize the CPU, particularly by long processes when other processes suffer from indefinite block or starvation. If the executing process goes to a infinite loop due to some programming errors it could lead to starvation. 
+
+**Note:**
+`Preemptive algorithms do not suffer from this starvation but they cause frequent context switches and incur associated overhead. Also a context switch can lead to a serious issues when the preemption occurs in the middle of a modification of a shred data.` 
+
+## 6.First-come-First-Served
+----
+This is the simplest non-preemptive CPU scheduling algorithm. Every process is scheduled based on its arrival time (time of joining the ready queue of the CPU) and continues to run until it is complete or voluntarily leaves CPU for some I/O operation. When the CPU is free, the process that has the earliest arrival time is scheduled next. FCFS can be implemented using a FIFO ready queue. Even though it is simple, it is not a very efficient algorithm as far as performance is concerned. The long processes can hold the CPU for long causing starvation to late comers.
+
+## 7.Shortest-Job-First
+----
+*This algorithm looks at the CPU burst times of all the waiting processes in the ready queue and allocates the CPU to the one with the shortest CPU burst time.* The shortest job will complete its execution quickly and reduce the wait time for the next candidate. In this strategy, all the processes will have the least possible wait time and hence least turnaround time as wel
