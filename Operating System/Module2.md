@@ -13,7 +13,7 @@
 
 ## 1.Process-and-Process-State
 ---------
-![](./images/multiple-process.png)
+![](images/multiple-process.png)
 When a program is executed, It becomes a process. A process is a program in execution. It is an active entity and dynamically changing. An OS considers processes as units of program execution or simply computation. A process contains application program (sequence of instructions) and data (arguments, variables etc...). A single program can have multiple processes running at the same time on a given machine even if the system has only 1 core.
 
 Some of the processes can belong to application programs or user programs (called user processes), and some OS programs (called kernel processes).
@@ -29,7 +29,7 @@ Each process holds some attributes given by the OS as follows.
    3. dynamic data in the form of **heap** and **stack**
 
 Kernel processes reside in kernel space (of main memory), execute OS kernel code in kernel mode, while user processes remain in user space and run user code in user mode and can make system calls 
-![](./images/Different_parts_of_process_addressspace.png)
+![](images/Different_parts_of_process_addressspace.png)
 
 ### Process address space
 When a program is executed, It is allocated space in the main memory. The space is called process address space. The space may be physically contiguous or non-contiguous depending on the memory allocation technique used by the OS.
@@ -40,7 +40,7 @@ When a program is executed, It is allocated space in the main memory. The space 
          - a. Heap: During program execution the process dynamically allocates memory (as done by malloc()in Fig. 2.2) based on requirement and deallocates when the need is over.
          - b. Stack: This space is used by the arguments, local variables, return values of a function or a method within a source program. For each function call, stack stores the above variables and data structures for it. 
 ### Process State
-![[./images/process_state.png]]
+![[images/process_state.png]]
 1. New: This is the first state of a process. When a process is created or a program is invoked the OS creates a new execution context, allocates a process address space in the main memory and other necessary per-process resources in the kernel mode. 
 
 2. Ready: Once the per-process resources are created, the process becomes ready for execution. It needs a processor (actually, a core of a processor, to be specific) to be allocated. 
@@ -66,7 +66,7 @@ The OS kernel maintains a special type of data-structure called PCB in it's kern
 - Hardware context: There are a number of hardware information that need to be kept track of like Program Counter, stack pointer, cpu registers, I/O devices.
 - Pointers to different data structures
 ### Process Table
-![](./images/processTable.png)
+![](images/processTable.png)
 In a multiprogramming OS, multiple processes concurrently run. The kernel thus has to maintain more than one PCB. Often the PCBs are stored as a list in a table. This is a kernel data structure called a Process Table.
 
 ### Context Switch
@@ -89,7 +89,7 @@ Process are disturbed under 3 events: Interrupts, system call and trap.
 3.**Trap/Exception**: When a running process encounters some error, attempts illegal operation or to access restricted resources, traps are flagged and handled in kernel mode by kernel processes.
 
 ## 3.Threads
-![](./images/threads.png)
+![](images/threads.png)
 
 A thread is a single flow of execution and considered a basic unit of CPU utilization, A process can have one or more threads. Each thread can run independently. if there are multiple CPU or multicore within a CPU, threads of a single process can execute in parallel simultaneously. Each thread has a threadID, program counter (PC), a register set and a stack of it's own. However code section, data section and other OS resources such as open files and signals are shared by all the process within a process.
 
@@ -153,7 +153,7 @@ CPU scheduling is managed by an OS program - known as CPU scheduler. The schedul
 
 #### Types of Scheduler
 
-![](./images/process_scheduling.png)
+![](images/process_scheduling.png)
 
 - **Long-term scheduler**: At the coarse level, the scheduler decides how many processes and exactly which processes will be brought in the ready queue of a CPU. The decision may be based on how many processes can be accommodated in the main memory and/or other OS design-related restrictions. This scheduler thus determines the degree of multiprogramming. Often this scheduler takes a process away (swap out) from the main memory and puts it in the hard drive and again brings it in (swap in) when space is available. Hence, a long-term scheduler is also called a swapper. In some books, swapper is also considered as a medium-term scheduler
 
