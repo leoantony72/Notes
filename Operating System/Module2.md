@@ -1,3 +1,6 @@
+#### References
+----
+ - Operating Systems Book by Sukomal Pal
 #### Syllabus
 ---------
 1. [Process, Process State](#1.Process-and-Process-State)
@@ -284,4 +287,36 @@ Termination occurs under additional circumstances. A parent process can terminat
 
 
 ## 11.Inter-Process-Communication
-----
+-----
+When two or more process can share information among them it is called a **cooperating processes**, Otherwise **independent processes.** Cooperating processes collaborate to accomplish a task through various interprocess communication (IPC) techniques. These techniques belong to either of the two popular IPC models: shared memory (SM) and message passing.
+
+### 11.1 Shared Memory Model
+process are allowed to use a memory region in the user space for communication/sharing resource. The OS provides sys call to create, manage and destroy shared memory spaces. The shared memory space is considered as part of its processes address space and can access it as its own memory. 
+
+A process can detach itself from the shared memory when its use is over, but the SM remains in the main memory until it is explicitly destroyed by some process (not necessarily the creator). If several processes want to access the space simultaneously, the OS kernel does not have any control on it. Concurrent access to the shared memory is thus to be managed at the user level only.
+
+These concurrent access are managed by methods like Mutex Lock, Semaphore
+
+### 11.2 Message Passing Model
+
+When the information to be shared among a set of cooperating processes is seen as a message that is sent by a process and is received by one or more processes, the paradigm is called message passing model. Message passing happens through the kernel space involving the OS kernel. There are several IPC mechanisms that implement message passing. Few of them are briefly discussed below.
+
+1. **Signal System**
+	- Signal system was originally implemented in UNIX systems and is the simplest IPC mechanism of message passing model. Every process has a signal descriptor in its kernel space to get notified on different signals (occurrence of interrupts and/or traps). Generally, a single bit is used for each of the signals and a particular bit is designated for it within the signal descriptor. Either the kernel process (for interrupts and traps) or any other cooperating process through a syscall sets a particular signal bit ON to notify the recipient process about the corresponding signal.
+2. **Message Queuing (MQ)**
+	- Message Queue are the best example for message passing model. In this model there are two types of process Sender(Producer) and Receiver(Consumer). Only the sender can send message . These messages are sent to a designated region in kernel space( called a message buffer ) and consumed by other processes. A message buffer is Queue strictly following FIFO principle. A message queue is often implemented with a circular queue following a producer-consumer model. 
+	- MQ is an asynchronous IPC technique - the producers keep on producing the items and put them in the buffer until the buffer is full. Similarly the consumers keep on collecting the items until the buffer is empty.
+3. **Pipes**
+	- Pipes are asynchronous and uni-directional message passing mechanism between two related processes. These pipes are created in kernel space and generally un-named. Usually parent and child processes communicate through unnamed pipes. In UNIX, a pipe is treated almost like a file. ***However, each process has two file descriptors for a pipe: one for read and another for write.*** Writer uses the write-descriptor and closes the read-descriptor, while the reader process uses the read-descriptor, closing the write descriptor. In shell programming, pipes are used to send output of one command to be used as input of another command. For example, two popular commands ‘ls | more’ use here a pipe denoted by ‘|’. Output of ls is sent as input of more. In the UNIX shell, a series of commands can be cascaded using pipes this way.
+4. **Sockets**
+	- Sockets are endpoints of a bi-directional communication channel through which two processes communicate. It can be related or unrelated, local or remote. A socket represents a port on the host machine through which a process sends or receives data. Sockets implement indirect IPC, i.e., any process that connects to the other end of the channel, i.e. another socket, can receive or send data.
+	- Sockets are mostly used in client-server configurations between two remote processes. Each socket is supposed to have a host address where the host id depends on the domain (domain can be UNIX or Internet). In the Internet domain, a host address consists of a 32-bit ip-addr and 32-bit port number. In the UNIX domain, it is a unique name like a filename
+	- ***Some functions are: socket(), bind(), listen(), connect(), accept(),close().***
+	- Once connection is established, the socket is accessed like a file within the host programs and data is read from or written to the socket
+	- Sockets can be implemented using different communication protocol like UDP, TCP.
+
+
+
+
+----------------------- 
+
