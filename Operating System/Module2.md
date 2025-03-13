@@ -7,9 +7,10 @@
 5. [Scheduling algorithms](#5.Scheduling-Algorithm)
 6. [First come First Served](#6.First-come-First-Served)
 7. [Shortest Job First](#7.Shortest-Job-First)
-8. Priority scheduling, Round Robin Scheduling
-9. Operations on processes: process creation and termination
-10. Inter-process communication: Shared memory systems, Message Passing
+8. [Round Robin Scheduling](#8.Round-Robin-Algorithm)
+9. [Priority Scheduling](#9.Priority-based-Scheduling-Algorithm)
+10. [Operations on processes](#10.Operation-on-Processes)
+11. [Inter-process communication](#11.Inter-Process-Communication)
 
 ## 1.Process-and-Process-State
 ---------
@@ -218,4 +219,69 @@ This is the simplest non-preemptive CPU scheduling algorithm. Every process is s
 
 ## 7.Shortest-Job-First
 ----
-*This algorithm looks at the CPU burst times of all the waiting processes in the ready queue and allocates the CPU to the one with the shortest CPU burst time.* The shortest job will complete its execution quickly and reduce the wait time for the next candidate. In this strategy, all the processes will have the least possible wait time and hence least turnaround time as wel
+*This algorithm looks at the CPU burst times of all the waiting processes in the ready queue and allocates the CPU to the one with the shortest CPU burst time.* The shortest job will complete its execution quickly and reduce the wait time for the next candidate. In this strategy, all the processes will have the least possible wait time and hence least turnaround time as well.
+
+## 8.Round-Robin-Algorithm
+----
+Round-robin is a preemptive algorithm with FCFS at the core. **Every process is preempted from the CPU core after a fixed time-interval** and put at the back of the ready queue. The time-interval is called **time-slice or time-quantum** of the RR algorithm. The wait-time of a process depends on the number of processes in the ready queue and the length of a time-quantum. 
+
+**With small time-slice, processes with smaller CPU bursts definitely gain as they can quickly get the CPU. If their CPU burst times are smaller or equal to the time slice, they can complete the execution in 1 time slice**. Hence, they gain in terms of individual wait time and TA time. **However, there is a substantial increase in the number of context switches.**
+
+
+With higher quantum, processes with smaller CPU bursts suffer, especially if they join the ready queue late. If we use a very high time quantum (say 5ms or higher), it becomes FCFS. However, the number of context switches decreases. We did not consider the overhead time of context switch here, but that is not always negligible. ***Therefore, time quantum must be way greater than time of context switch time. Quantum is generally kept 10 to 100 milliseconds in modern OSs, while a context switch takes in the order of a few microseconds.*** 
+
+The RR algorithm can be implemented using a circular queue and a timer interrupt that interrupts to invoke the dispatcher after the time quantum expires and causes a context switch. The dispatcher picks the process from the front of the queue
+
+## 9.Priority-based-Scheduling-Algorithm
+----
+In this algorithm every process are associated with a priority level. A scheduler allocates CPU to the process with the highest priority among all the processes in the read Queue. if two or more process have the same priority level, they are then scheduled according to the FCFS algorithm.
+
+**Note:**
+		***SJF can be considered as a special case of the priority algorithm whereas if priority of a process is decided by the reciprocal of its CPU burst time (longest process is assigned the lowest priority).***
+
+ In a non-preemptive version of the priority algorithm. It suffers from the problem of indefinite blocking and causing starvation to other waiting processes. Hence, preemptive priority-based algorithms (whenever a higher priority process arrives, the current process is preempted and the high- priority one is scheduled immediately
+
+
+## 10.Operation-on-Processes
+----
+
+#### process creation
+
+A process may create several new processes via a create-process system call, during the course of execution. The **creating process is called a parent process**, **whereas the new processes are called the children of that process**. Each of these new processes may in turn create other processes, forming a tree of processes.
+
+A process will certain resources to accomplish it's task. For identifying each process, process identifiers are used. These are done by using process-id.
+
+A process may create several sub-processes. When a process creates a sub-process, that sub-process may be able to obtain its resources. The resources are allocated in two ways:
+- The resources can be obtained directly from OS
+- Parent process gives the resources.
+
+The parent process gives its resources in two ways:
+- Parent divide its resources and give one part to the child
+- The parent and the child share the available resources.
+The execution of the processes is done in two ways:
+- The parent continues to execute concurrently with its children.
+- The parent waits until some or all of its children have terminated.
+
+In UNIX, each process is identified by its process identifier, which is a unique integer. A new child process is created using the fork system call. The new process consist of a copy of the address space of the original process.
+
+When the parent is waiting, the child process must be loaded in to the main memory. At that time, the images that already exist in the memory must be deleted. For that purpose, the exec() system call is used.
+
+The child process has its own address space. This address space:
+- a) May be the duplicate of the parent process or
+- b) The separate address space of the child process. 
+
+The parent waits for the child process to complete with the wait system call. When the child process completes, the parent process resumes from the call to wait where it completes using the **exit** system call.
+
+#### process termination
+
+A process terminates when it finishes executing its final statement and asks the operating system to delete it by using the exit system call. At that point, the process may return data (output) to its parent process (via the wait system call). All the resources of the process — including physical and virtual memory, open files, and I/O buffers — are deallocated by the operating system.
+
+Termination occurs under additional circumstances. A parent process can terminate the execution of a child process using **abort() system call**. A parent may terminate the execution of one of its children for a variety of reasons, such as these:
+
+1. The child has exceeded its usage of some of the resources that it has been allocated.
+2. The task assigned to the child process is no longer needed
+3. If the parent is exiting, the OS does not allow the child process to continue. This termination of all of the parents children is called cascading termination.
+
+
+## 11.Inter-Process-Communication
+----
