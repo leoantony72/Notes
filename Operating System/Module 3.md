@@ -146,13 +146,13 @@ There are two types of semaphore:
 
 As mentioned earlier, ***busy-wait is a wastage of CPU time***. Instead of spinning, a process can rather block and have a context switch to let other processes execute when its competitor(s) are executing in CS. The semaphores, therefore, get rid of busy wait loops by maintaining a list of such blocked processes. Necessary changes in the implementation are shown below.
 
-![[./images/implementation_of_semaphore.png]]
+![](./images/implementation_of_semaphore.png)
 
 A semaphore is always initialized with a non-negative integer. Then its value is inspected and updated only by two functions. In the wait function sem_wait(), semaphore value is decremented first and then the calling process is blocked, if the semaphore value becomes negative. The blocked processes wake up only through a call of signal function (sem_signal()) invoked by some other process. In the signal function, semaphore value is incremented first and if it becomes non-positive (≤ 0), a blocked process is woken up and allowed to continue. The list of processes is implemented using a pointer to the linked list of PCBs of blocked processes. The two functions sem_wait() and sem_signal()must be executed atomically. In other words, these functions can also be considered critical sections for a semaphore. Hence, they must be implemented using disabling interrupts (Sec 3.7.1.2) or CAS or mutex locks. 
 
 Semaphores are offered by OS to ease the job of synchronization for application programmers. Primary use is in mutual exclusion of a critical section (CS) among a set of cooperating processes. A binary semaphore s is initialized with value 1. The process that wants to execute a CS, calls sem_wait(s) in the entry section. If no other process is in CS, it can go into the CS. In the exit section, it calls sem_signal(s) to let others go. The code looks simpler and tidy from the application programmers’ end. A binary semaphore can also be used for ensuring serialization of events, tasks or statements. Suppose we want to ensure that statement S1 of process P1 need to execute before the statement S2 of the process P2 where both processes are running concurrently. We can do the following implementation using a semaphore sync, initialized to 0. Since sync has initial value 0, P2 will block due to sem_wait( ) and cannot execute S2 in P2. Once S1 in P1 is executed and then sem_signal( ) increments the semaphore sync, S2 in P2 can execute.
 
-![[use_of_semaphore.png]]
+![](use_of_semaphore.png)
 Counting semaphores are often used for managing simultaneous access of a resource by more than one process. A counting semaphore can keep track of the accesses to resources that have multiple instances like scanners, printers, shared buffers, files etc. and can stop further attempts when the maximum limit is reached. We shall soon see more use of semaphores in solving some of the classical critical section problems.
 
 ## 7.Monitors
