@@ -5,9 +5,9 @@
 3. [Critical Section Problem](#3.Critical-Section-Problem)
 4. [Mutex Locks](#4.Mutex-Locks)
 5. [Peterson’s Solution](#5.Petersons-Solution)
-6. [Synchronization Hardware](#6.Synchronization-Hardware)
-7. [Semaphores](#7.Semaphores)
-8. [Monitors](#8.Monitors)
+6. [Semaphores](#6.Semaphores)
+7. [Monitors](#7.Monitors)
+8. [Synchronization Hardware](#8.Synchronization-Hardware)
 9. [Synchronization Problems](#9.Synchronization-Problems)
 10. [Producer-Consumer Problem](#10.Producer-Consumer-Problem)
 11. [Dining Philosophers Problem](#11.Dining-Philosophers-Problem)
@@ -44,9 +44,9 @@ When a shared variable is accessed in a process, the first instruction with whic
 Let us consider a system of n processesܲ  P0,P1,P2,....P(n-1) sharing at least a shared data item among them. Each of the processes has a critical section where the process accesses or modifies data that is shared with at least another process. As already discussed, no two processes should be allowed to access the CS at the same time. Any process that wants to access a CS must make a request to enter the CS. If there is no other process executing the CS, the requesting process will be allowed to enter the CS, otherwise it needs to wait. The section of code where the request is made, and the process is granted permission or needs to wait is called an entry section. Every CS will be preceded by an entry section. Similarly, when the execution of a CS is done by a process, some bookkeeping jobs need to be done, so that other processes waiting for permission to enter the CS, can enter in their CS. This portion of code where book-keeping work is done just after a CS is called an exit section. Every CS will be followed by an exit section. Other portions of the code in each of the processes are called the remainder section.
 
 Any good solution to the critical section problem must have three following properties:
-- Mutual Exclusion: One  and only one process is allowed to execute in a critical section corresponding to a shared data object at any time. In other words, access to the CS is done mutually exclusively. This is also known as the safety property
-- Progress: If no process is executing in a CS, but some other process(es) want(s) to enter the CS, then the processes which are not in the remainder section (that means processes in either entry or exit or critical sections) will decide which process can enter in the CS next. Also, this decision must be taken within a bounded time. This is also known as finite arbitration or liveness property.
-- Bounded Wait: Once a process has made a request to enter a critical section, there must be a limit or bound on how many times other processes can be allowed to enter the CS before the requesting process is granted access to enter the CS. This is also called the property of starvation freedom
+- **Mutual Exclusion**: One  and only one process is allowed to execute in a critical section corresponding to a shared data object at any time. In other words, access to the CS is done mutually exclusively. This is also known as the safety property
+- **Progress**: If no process is executing in a CS, but some other process(es) want(s) to enter the CS, then the processes which are not in the remainder section (that means processes in either entry or exit or critical sections) will decide which process can enter in the CS next. Also, this decision must be taken within a bounded time. This is also known as finite arbitration or liveness property.
+- **Bounded Wait**: Once a process has made a request to enter a critical section, there must be a limit or bound on how many times other processes can be allowed to enter the CS before the requesting process is granted access to enter the CS. This is also called the property of starvation freedom
 
 ## 4.Mutex-Locks
 ---
@@ -101,5 +101,70 @@ do {
 - **Bounded Waiting:** The `turn` variable ensures that neither process gets **stuck forever** waiting.
 
 
-## 6.Synchronization-Hardware
+## 6.Semaphores
+---
+Semaphore are an improved version of mutex locks. A semaphore S is an integer value that can only be accessed **by two atomic function *wait( )* and *signal( )***. The semaphore integer variable (val) keeps track of simultaneous access to a critical section that can be allowed. It is initialized with an integer indicating maximum of such simultaneous accesses (often simultaneous reads to a CS data item is allowed, but simultaneous read & write are to be done mutually exclusively).
+
+***wait( )*** allows the use of semaphore and decrements the val. When no more simultaneous access is allowed (val <=0), a process spins in busy-wait. 
+
+***signal( )*** increments semaphore value to allow other waiting processes to use the semaphore. wait() is also known as down() or P().
+
+*==Definition of Semaphore==*
+```c
+typedef struct {
+int val;
+}semaphore;
+
+semaphore S;
+```
+
+==*Waiting with busy waiting*==
+```c
+wait(S){
+	while(S.val <= 0);
+	/* wait till the s.val > 0 (resource is free) */
+	S.val --; /* acquires the resource */
+}
+```
+
+==*Semaphore Release*==
+```c
+Signal(S){
+	S.val ++;
+}
+```
+
+#### Semaphore types
+
+There are two types of semaphore:
+
+- A ***counting semaphore*** allows multiple but limited number of processes to simultaneously access a shared resource (including reading). When non-negative, the semaphore value represents how many more processes can still be allowed to simultaneously access a shared resource. When negative, semaphore shows the number of processes waiting to access the shared resource. 
+
+- A restricted type is the ***binary semaphore*** that is like a mutex lock. Its val thus can be 0 or 1. However, mutex lock (or spinlock) is different from binary semaphore in that mutex requires the same process to unlock it that locked it. On the other hand, binary semaphores are operated by any process that has access to it (not necessarily the same process).
+
+#### Implementation of a semaphore 
+
+As mentioned earlier, ***busy-wait is a wastage of CPU time***. Instead of spinning, a process can rather block and have a context switch to let other processes execute when its competitor(s) are executing in CS. The semaphores, therefore, get rid of busy wait loops by maintaining a list of such blocked processes. Necessary changes in the implementation are shown below.
+
+![[./images/implementation_of_semaphore.png]]
+
+A semaphore is always initialized with a non-negative integer. Then its value is inspected and updated only by two functions. In the wait function sem_wait(), semaphore value is decremented first and then the calling process is blocked, if the semaphore value becomes negative. The blocked processes wake up only through a call of signal function (sem_signal()) invoked by some other process. In the signal function, semaphore value is incremented first and if it becomes non-positive (≤ 0), a blocked process is woken up and allowed to continue. The list of processes is implemented using a pointer to the linked list of PCBs of blocked processes. The two functions sem_wait() and sem_signal()must be executed atomically. In other words, these functions can also be considered critical sections for a semaphore. Hence, they must be implemented using disabling interrupts (Sec 3.7.1.2) or CAS or mutex locks. 
+
+Semaphores are offered by OS to ease the job of synchronization for application programmers. Primary use is in mutual exclusion of a critical section (CS) among a set of cooperating processes. A binary semaphore s is initialized with value 1. The process that wants to execute a CS, calls sem_wait(s) in the entry section. If no other process is in CS, it can go into the CS. In the exit section, it calls sem_signal(s) to let others go. The code looks simpler and tidy from the application programmers’ end. A binary semaphore can also be used for ensuring serialization of events, tasks or statements. Suppose we want to ensure that statement S1 of process P1 need to execute before the statement S2 of the process P2 where both processes are running concurrently. We can do the following implementation using a semaphore sync, initialized to 0. Since sync has initial value 0, P2 will block due to sem_wait( ) and cannot execute S2 in P2. Once S1 in P1 is executed and then sem_signal( ) increments the semaphore sync, S2 in P2 can execute.
+
+![[use_of_semaphore.png]]
+Counting semaphores are often used for managing simultaneous access of a resource by more than one process. A counting semaphore can keep track of the accesses to resources that have multiple instances like scanners, printers, shared buffers, files etc. and can stop further attempts when the maximum limit is reached. We shall soon see more use of semaphores in solving some of the classical critical section problems.
+
+## 7.Monitors
+---
+Monitors are more powerful and sophisticated tools than critical regions provided by programming languages. They can be considered as abstract data types (ADT) that encapsulate both data and methods, resembling objects in C++ or Java. A user can define her own monitor based on her need using the prototype as given in Fig 3.24a. Each monitor has the provision of defining a set of shared variables that can represent the states of the monitor, a set of condition variables whose values determine the progress of the monitor, and a set of functions that can be executed in a mutually exclusive manner. A process enters a monitor by invoking a function or method within it. Within an invoked function, the parameters, shared variables and condition variables defined can be accessed. A condition variable here is like that in a conditional critical region. The variable determines whether to proceed in execution of the monitor-function that it is executing or to block, based on the value of the variable. Since only one of the monitor functions is active at a given time, and no other functions from the same monitor can be active that time, several processes can wait or block to enter a given monitor. Again, within a monitor-function, a process can check a condition variable and block itself. This condition variable is a shared variable on which several processes can block. Hence, there can be two sets of blocked processes. One set of blocked processes have not entered the monitor (called inactive processes) and another set of processes that are within the monitor (and hence, active) but blocked on condition variables. Inactive processes can enter a monitor when no other processes are active in the monitor. They are not directly dependent on any control variable. 
+
+Each condition variable x within a monitor is associated with two functions: x.wait() and x.signal(). Very much like a semaphore, x.wait() blocks an active process running within a monitor. x.signal() wakes up a blocked active process, if any. If there are no blocked processes, x.signal() does not have any effect (unlike normal semaphore). However, once a x.signal() is invoked by a process (say A) and there is a process (say B) waiting on x.wait(), a pertinent question is: which process can start execution inside the monitor immediately? There are two possible answers as strategies given below. 
+
+1. Signal and wait: Process A signals and then waits until B completes execution in the monitor. 
+2. Signal and continue: Process A signals and continues while process B waits until A completes execution in the monitor. 
+
+Any one of the strategies is followed in an implementation. However, both have their advantages and disadvantages and are used in different implementations. Java, C# support monitors.
+
+## 8.Synchronization-Hardware
 ---
