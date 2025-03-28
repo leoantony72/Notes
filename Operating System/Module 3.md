@@ -168,3 +168,85 @@ Any one of the strategies is followed in an implementation. However, both have t
 
 ## 8.Synchronization-Hardware
 ---
+Some synchronization services are obtained from the basic hardware like the memory units, processors and/or interrupts. 
+
+#### Atomic memory operations
+
+Memory cells store the data which are read and written through machine instructions executed by the processor. Simultaneous access to different memory locations does not cause any synchronization issue, but on the same memory location may do. In a uniprocessor system, only one instruction can be executed by the processor at a single point in time. After invoking a memory read or memory write operation, the CPU stalls or blocks the process. It does not proceed until the memory operation is over. Hence, no other instructions from the same process can invoke the same memory access in a non-preemptive kernel.
+
+In a preemptive system, the CPU can go to other threads or other processes that can attempt to read or write from the same memory location. However, even in a preemptive kernel, only one memory operation is generally allowed at a time. When one memory read / write is going on, other attempts to the same memory location are blocked by the hardware. Another memory operation by the same or another process is allowed only after the current one is completed. Simultaneous attempts to memory access are, however, serialized in an arbitrary manner - whoever executes the memory operation instruction first, gets to access the memory. The memory operation is atomic - i.e., if it is started, the memory access hardware ensures that it is done in a mutually exclusive manner.
+
+#### Disabling Interrupts
+
+One solution to stopping simultaneous attempts for accessing the same critical section can be dis-allowing preemption, i.e., not allowing any interrupts to occur during CS execution. However, disabling interrupts can only be done in kernel mode. Hence, user processes cannot implement it in user mode. Kernel processes can implement it by disabling interrupts from devices, timer or other processes (traps) in the entry section before going into the critical section. Again, after execution in CS is over, the process enables the interrupt so that interrupts from timer, other devices and processes can happen. Also, another kernel process can disable interrupt and enter the CS.
+
+This scheme ensures mutual exclusion, but not progress and bounded wait. More than just disabling and enabling interrupts needs to be done in entry and exit sections respectively to achieve other properties. Also, disabling interrupts for long due to a lengthy critical section can be detrimental to the system performance, as it under-utilizes the peripheral devices and reduces concurrency.
+
+although the scheme can be easily implemented in a uniprocessor system, it will be very difficult to implement in a multiprocessor system. Ensuring mutual exclusion in a multiprocessor system needs blocking other processors whenever attempts to access the same critical section is made. This is non-trivial. Hence, even if we implement interrupt disabling, we need other synchronization mechanisms, especially for multiprocessor systems.
+
+
+### Extended Hardware Solutions
+
+#### test-&-set lock (TSL)
+testAndset() is an instruction that tests and returns the value of its argument (type boolean) and sets its value if it was originally false. If two or more processes attempt to execute testAndset() simultaneously, the instructions will be run atomically, but in an arbitrary manner. Whoever gets the first chance, will be able to set val. Others can check that it is already set.
+
+#### compare-&-swap (CAS)
+compareAndswap() is another hardware instruction that compares values of two arguments (target variable with an expected one) and if they are equal, sets to a new value (third argument) and returns the original value of the target variable. CAS deals with integers.
+
+#### Atomic variables
+Synchronizing instruction like CAS is not typically used directly for mutual exclusion. Rather, CAS is more used in implementing atomic increment or decrement of a variable. The function can be implemented in the following way. The value var is decremented only once by only one process that tried to execute the CAS first. The increment can also be done in the same manner. This implementation can ensure atomic updates: no two processes can update at the same time.
+
+## 9.Synchronization-Problems
+---
+With necessary background on the interprocess communication, synchronization, critical section problems and their solution attempts using different synchronizing tools, we discuss a few classical IPC problems where there are a few CSPs. Let us describe the problems and their solutions.
+
+## 10.Producer-Consumer-Problem
+---
+This is a classic problem found in many systems across the domains where a component produces some items or objects and stores them in a place one after another from where they are picked up (or consumed) in the same order by another component of the system downstream (Fig 3.28). The buffer is accessed in FIFO (first-in-first-out) manner. The producer-consumer problem can have different forms and flavours as given below. 
+![](./images/producer_consumer.png)
+Based on the IPC mechanism, it can follow 
+- ***Synchronous communication***: the producer produces only when the consumer is ready to consume. 
+- ***Asynchronous communication***: the producer(s) produces at its own speed and puts the items in a buffer from where the consumer(s) picks them at its own speed.
+
+Depending on the buffer type, the problem may have 
+- ***Unbounded buffer:*** The producer produces without any bound or limit and puts items onto a buffer of infinite capacity. 
+- ***Bounded buffer:*** Buffer size is fixed; the producer stops when the buffer is full. It can only resume when at least one item is consumed from the full buffer.
+
+The producer and consumer can simultaneously access the buffer asynchronously. As long as the buffer contains some items, there will not be any problems. However, *the producer must stop when the buffer is full and loops around in a busy-wait state. Similarly, the consumer must be in busy- wait when the buffer is empty.* These two extreme cases lead to wasteful busy-wait CPU cycles. However, that can be avoided with the use of semaphores. Also, the bounded buffer is concurrently accessed by both the producer and the consumer.
+
+## 11.Dining-Philosophers-Problem
+----
+Five philosophers (numbered as 0, 1, 2, 3, 4) are sitting around a round-table to dine with spaghetti (an Italian food). They primarily think but attempt to eat when they feel hungry. Each philosopher has a private plate but there are only five forks. Assume, each philosopher needs two forks (both left and right) to eat and thus not all of them can eat at the same time. But when a philosopher finds two forks available beside her, she picks them up, eats some, (washes and) puts down the forks and starts thinking again. 
+The problem states: can we devise an algorithm that all the philosophers can complete dining without any issues or difficulties?
+
+It represents a class of synchronization problems where a subset of the cooperating processes (or threads) can share a limited number of instances of some shared resource(s) to do some job, but not all the processes at the same time. How to serialize their accessing the resource(s) so that all the following properties like 
+
+1. mutual exclusion, whenever it is required, is maintained,. 
+2. there is no starvation (every intending process can access the resource) and 
+3. there is no deadlock (there is no stalemate). 
+
+As the problem states, no two philosophers can use the same fork simultaneously. In other words, forks are to be used in mutual exclusion.
+
+Let us consider the following shared variables. 
+n = number of forks (originally n = 5) and an semaphore fork [n] = {1, 1, …, 1}; (binary semaphores, all initialized to 1).
+
+Each philosopher picks up first the left fork and then the right fork, eats for some time and then puts down the fork in the same order (left followed by right). When the philosophers attempt to grab the fork, certainly mutual exclusion will be ensured. If one philosopher can grab both the forks, she can eat as well
+
+ in an extreme case, there is a possibility that each philosopher picks up the left fork first and before the right can be picked up, her neighbour picks it up. This leads to a situation where everyone has left fork on their left-hands and their right-hands are empty, nobody can eat and there is a complete stalemate or deadlock. The problem can linger forever unless there is preemption of resources externally. Hence the problem is not deadlock-free
+
+There can be starvation-free and deadlock-free solutions imposing some restrictions like 
+1. There should be entry for a maximum of (n-1) philosophers when there are n forks, OR 
+2. n is even and we ensure that even-numbered philosophers (numbered 0, 2, 4, …) pick up left forks first and then right ones, while odd-numbered philosophers pick up right forks first followed by left, etc.
+## 12.Readers-Writers-Problem
+---
+This is another classical synchronization problem. Even though it has resemblance with the producer-consumer problem, here the shared object is treated as a single unit. The unit can be a database record, a file, a memory block or even a set of processor registers.
+
+The shared unit can be read simultaneously by several processes (or threads) without any harm but cannot be concurrently read & written. Also, simultaneous writes cannot be allowed,
+
+Hence mutual exclusion is needed between read and write as well as between simultaneous write attempts. Also, the problem has two variations based on the priorities between the readers and the writers. If one or more readers wait along with one or more writers: either the readers can be given priority or the writers.
+
+![](./images/reader-writer-problem.png)
+no reader should wait unless a writer has already accessed the critical section. It allows simultaneous reads and counts the readers using a shared variable r_count (initialized to 0). The reader process first increments r_count and then checks its value. If it is the first reader, it should stop any writer and thus invokes wait for binary semaphore rw_mutex/
+
+The writer process is simple. It does write in mutual exclusion to read. If any reader is already within the CS, it waits. As the readers have the priority, the writers may wait indefinitely causing starvation to writers. Hence, mutual exclusion is maintained in the solution, but not progress nor bounded-wait for the writers.
+
