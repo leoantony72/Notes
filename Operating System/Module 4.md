@@ -103,7 +103,7 @@ Every running program will have a virtual memory, these memory will be mapped to
 
 **Both the virtual memory and physical memory are divided into several small blocks of equal size this is called pages**. This is done to reduce the complexity of the mapping.
 
-![](Os.excalidraw#^group=54WuN45LxmetjpKF8gdqQ|400)
+![[Os.excalidraw#^group=54WuN45LxmetjpKF8gdqQ|400]]
 
 ***A program is not fully loaded into the disk, initial program is loaded in the memory and the rest are stored in the Disk. These mapping are also done by the Page Table. Inside the page table the corresponding data/instruction will be marked as inside the disk. When the program needs the data it fetched from the disk and loaded into the memory(if the memory is full, an older data is replaced. this is decided by page replacement algorithms).***
 
