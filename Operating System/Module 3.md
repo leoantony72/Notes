@@ -250,3 +250,51 @@ no reader should wait unless a writer has already accessed the critical section.
 
 The writer process is simple. It does write in mutual exclusion to read. If any reader is already within the CS, it waits. As the readers have the priority, the writers may wait indefinitely causing starvation to writers. Hence, mutual exclusion is maintained in the solution, but not progress nor bounded-wait for the writers.
 
+# 13.Deadlocks
+----
+In operating systems, deadlock is a serious problem caused by concurrent execution of processes (or threads). It refers to a situation where a set of concurrent processes (or threads) perpetually block or starve for want of some resources held by some other processes (or threads) within the set. The processes (or threads) cannot come out of the situation on their own.
+
+Concurrency offers increased CPU utilization and throughput, Only if the processor has multiple cores true parallelism can be achieved. It also leads to additional challenges like race conditions due to attempt of concurrent execution of critical execution. 
+
+But the issue of deadlock is more general and pervasive. The processes (or threads) involved in a deadlock cannot proceed any further (not only execution of critical sections but non-critical sections as well). Deadlock is characterized by the following: 
+1. it is caused for the want of computing resources (of any type). 
+2. nature of starvation is perpetual. 
+3. starvation occurs to more than one processes (or threads) simultaneously. 
+4. the set of processes (or threads) have dependencies on each other in such a manner that they cannot come out of the perpetual stalemate on their own. 
+
+A deadlock differs from a livelock in the starvation. In a livelock starvation is not permanent and the entities involved in the livelock can resolve on their own without necessarily requiring external efforts.
+
+**Livelock**: A situation where two or more processes continuously **change state** in response to each other but **do not make progress**. Two processes constantly trying to avoid a deadlock by releasing and re-acquiring resources, but they keep interfering with each other.
+
+### Resources
+
+A computing resource can be any object (hardware or software) that a process (or thread) requires to complete its execution. Hardware resources can be processors, network cards, memory elements, I/O devices; software resources can be files, shared objects (In UNIX, .so files), sockets, messages or synchronization tools like semaphores. mutex locks.
+
+### Resource access 
+
+Threads need resources for completing their tasks. During execution, a thread needs and uses several resources. However, the uses always obey the following sequence. 
+
+1. Request: A thread makes a request to the OS kernel for one or more instances of a resource. If an instance of the resource is not available, the kernel cannot grant it to the thread immediately. The thread waits (or blocks) till it acquires an instance of the resource. 
+2. Use: Once acquired, the thread uses the instance of the resource non-shareably. 
+3. Release: After the use, the thread returns the resource back to the kernel. 
+
+In most cases, both request and release are system calls. Use may be in user or system context. If the resource is a mutex lock or a semaphore, use can be executing a critical section guarded by the mutex lock.
+
+
+### 14.Resource-Allocation-Graphs 
+![](./images/resource_allocation_graph.png)
+Concepts from Graph Theory help understand and define deadlocks precisely. Resource allocation to threads can be modeled as a heterogeneous directed graph having two types of nodes (resources and threads) and two types of edges. A thread requests for a resource of a particular resource-type - it is represented by a claim edge or a request edge from a thread to a resource. When the request is granted, the thread holds the resource - it is represented by allocation edge or assignment edge. Such a representation is called a resource allocation graph.
+
+### CONDITIONS of a DEADLOCK 
+
+With the technical background given above, we can now define a deadlock more precisely. A deadlock can occur if all the following conditions are satisfied simultaneously. 
+
+1. **Mutual Exclusion** in use of resources: When resources are used by threads non-sharably, then only there may emerge a possibility of deadlock. There should be at least one resource that is used by threads in a mutually exclusive way - i.e., only one thread can use an instance of the resource at a time. If another thread wants to use the same instance of the resource, the thread needs to wait till the first thread releases the resource. 
+
+2. **Hold and Wait** for resources: During execution, threads are allowed to hold one or more resources and, at the same time, request to acquire a few more resources held by other thread(s). 
+
+3. **No Preemption of resources**: None of the resources are preempted from the threads that hold them. A thread releases the resources voluntarily when either their need is over, or the thread terminates. 
+
+![](./images/RAG_WITH_multiple_instances.png)
+
+4. **Unresolvable Circular Wait:** A set of threadsܶ  **T = {T₁, T₂, ..., Tₙ}** A set of resources: **R = {R₁, R₂, ..., Rₙ}**. - **R₁ → T₁**: Resource R₁ is _assigned_ to T₁ **T₁ → R₂**: T₁ is _requesting_ R₂, **R₂ → T₂**: R₂ is _assigned_ to T₂, **Rₙ → Tₙ**, **Tₙ → R₁**: Tₙ is _requesting_ R₁. Formation of the cycle in the RAG (Fig 4.8) is a confirmation of a deadlock when there are only single instances of each of the resources. If the number of instances for even a single resource is more than one, even though there is a cycle - there may not be a deadlock if all the requests can be satisfied.
