@@ -41,6 +41,7 @@ If no partition is free, but there is a new process ready to be loaded, one of t
 
 #### Fixed partitioning
 The OS divides the available space into a few partitions before actual space allocation to processes. The partitions can be of either equal or unequal size![][][](./images/fixed_partitioning.png)
+
 ***Equal partitions:*** All the partitions are of equal size. **If a process fits within the size, it is allocated a partition, otherwise it is denied**. Either the developer must manage using overlaying or the program is not run at all. 
 
 **Even if a process is much smaller (say, 1M) than the partition size (8M here), an entire partition is allocated to the process**. Since the boundaries are pre-decided and fixed, ***the remaining space (7M here) is wasted as it cannot be used by any other processes. This phenomenon is called internal fragmentation*** as fragments are created within the partitions. 
@@ -54,6 +55,7 @@ This scheme can reduce internal fragmentation with an increased overhead of extr
 Here the partitioning is not done apriori but done at the time of space allocation. As the processes arrive, available space is allocated to them from one end of the memory exactly as per their need. When no more space is available, either the new process is denied, or a not-ready process is swapped out.
 The partitions are thus dynamically created. They are of variable sizes. However, when processes leave the memory or are swapped out, new processes need not be of the same size. ***When a new process of smaller size replaces an old process, the boundary comes closer, and a ‘hole’ is created in memory.***
 ![](./images/dynamic_partitioning.png)
+
 The partition gets smaller, and the fragmentation is outside the partition. This phenomenon is different from internal fragmentation discussed in fixed partitioning and is called ***external fragmentation***.
 
 ***For example**, suppose in a memory of 32 MB, the OS occupies 8 MB space leaving 24 M space free (Fig 5.7a). A process P1 of size 10M arrives and is allocated space (b). Similarly, P2 and then P3 arrive and occupy (c-d), leaving 1M of space. Now, process P4 of size 8M comes but there is not enough space. P1, the only process that occupies the space large enough is then swapped out (assuming it was not running). P4 takes 8M of space, leaving 2M empty (e). Similarly, P5 leaves another 1M hole (f). **Now, suppose a process P6 with say, 3M size arrives. Even though we have 4M space empty, but not contiguous. Hence, P6 cannot be allocated space due to external fragmentation.*** 
@@ -74,6 +76,7 @@ How can the issue of external fragmentation be effectively managed, as it keeps 
 ----
 **Segmentation is another non-contiguous memory allocation technique where space is allocated to processes in the units of logical blocks or segments from a user’s perspective.** Any program can be considered as a collection of logical segments. ***For example, a C- implementation of quicksort algorithm may have the following logical sections: functions main(), read(), quicksort(), partition(), swap() etc. and data section. Each of the functions and data sections can be considered as a segment and they can be independently loaded onto the memory*** (Fig 5.17a). 
 ![](./images/segmentation.png)
+
 Each segment is assigned a number (numbering is not done by the OS, but by either the compiler, linker or loader) and any memory reference in the logical space is done relative to the beginning of a segment. Hence, logical addresses have the form <seg-id, offset> where seg-id represents segmentation id and offset is the location of the address from the base-address of the segment. Base-addresses of all the segments are maintained in a segment table by the OS
 
 ### Paging
@@ -90,7 +93,8 @@ Execution goes smoothly if memory references are within the resident set. Howeve
 The OS then suspends the ongoing process and puts it in the waiting state. The OS also issues a disk I/O request to bring the page or the segment corresponding to the logical address that caused the memory access fault. 
 
 Once the demanded piece (page or segment) is brought to the memory, an I/O completion interrupt through the processor notifies the OS. The OS then places the blocked process to the ready queue to resume its execution. When there is not enough space in the main memory, some piece of the process address space is replaced to the backing store of the secondary memory.
-![](./images/virtual-memory.png)As shown in Fig 5.20, ***a portion of the secondary memory serves as a backing store of the active processes. While some portions of a process remain in the main memory, other portions are stored in a designated area of the secondary memory. This backing store in the secondary memory is what creates the virtual memory. This is also known as swap space.*** During OS installation, a hard disk is formatted with sufficient space for the swap space (usually kept equal to the size of the main memory space or higher).
+![](./images/virtual-memory.png)As shown in 
+Fig 5.20, ***a portion of the secondary memory serves as a backing store of the active processes. While some portions of a process remain in the main memory, other portions are stored in a designated area of the secondary memory. This backing store in the secondary memory is what creates the virtual memory. This is also known as swap space.*** During OS installation, a hard disk is formatted with sufficient space for the swap space (usually kept equal to the size of the main memory space or higher).
 
 
 ### simplified version
@@ -107,7 +111,7 @@ Every running program will have a virtual memory, these memory will be mapped to
 
 ***The page is dirty if the program has written something to it after loading it from the disk.*** ==Only if the page is dirty its content is written back to the disk. because if the contents haven't changed there is no need to write it back to disk.==
 
-Loading the page from the disk is very slow, so in the meantime, the OS executes another process. A context switch happens here. test23
+Loading the page from the disk is very slow, so in the meantime, the OS executes another process. A context switch happens here.
 
 ### Important points
 ---
@@ -119,3 +123,18 @@ Loading the page from the disk is very slow, so in the meantime, the OS executes
 - One page table per program.
 - Page fault is an exception raised when the corresponding page/data 
   is not in RAM.
+
+
+A page-fault incurs the logistic and temporal cost of several operations: 
+1. understanding that it is a page-fault (through a trap) 
+2. understanding that the reference is legal, and the page is available in backing store 
+3. context switch (suspending the current process and starting another) 
+4. searching the page in the backing store (incurs disk seek-time + rotational latency) 
+5. loading the page on I/O bus 
+6. loading the page on the memory and updating page table 
+7. putting the blocked process on the ready queue so that the instruction can be restarted
+
+## Page-Replacement-Algorithms
+---
+1. Optimal (OPT) Page Replacement Algorithm
+   This is the best possible algorithm that has the minimum page fault rate. The principle used here is: replace a page that is not going to be used for the longest time. The algorithm ensures that a page once brought into the memory is kept if it is to be used in the future. When a new page is required to replace an old one, the victim must be the one not to be used in the future. If such a page is not found, then the victim must be the page to be used in the most distant future. 
