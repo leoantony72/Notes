@@ -136,5 +136,24 @@ A page-fault incurs the logistic and temporal cost of several operations:
 
 ## Page-Replacement-Algorithms
 ---
-1. Optimal (OPT) Page Replacement Algorithm
-   This is the best possible algorithm that has the minimum page fault rate. The principle used here is: replace a page that is not going to be used for the longest time. The algorithm ensures that a page once brought into the memory is kept if it is to be used in the future. When a new page is required to replace an old one, the victim must be the one not to be used in the future. If such a page is not found, then the victim must be the page to be used in the most distant future. 
+1. ***First In First Out (FIFO)***
+   This is the simplest page replacement algorithm. In this algorithm, the operating system keeps track of all pages in the memory in a queue, the oldest page is in the front of the queue. When a page needs to be replaced page in the front of the queue is selected for removal.
+   
+   ****Example 1:**** Consider page reference string 1, 3, 0, 3, 5, 6, 3 with 3-page frames. Find the number of page faults using FIFO Page Replacement Algorithm.
+   ![](https://media.geeksforgeeks.org/wp-content/uploads/20241023184328270600/page1.jpg)
+
+2. **LRU (Least Recently Used)**
+   **LRU** is a page replacement algorithm that removes the page that has **not been used for the longest time**.Each time a page is accessed, it is marked with the **current time** (or moved to the front of a list).
+   When a page needs to be replaced (on a page fault), the page that was accessed **least recently** (i.e., has the **oldest timestamp**) is removed from memory.
+3. **LFU (Least Frequently Used)**
+   **LFU** is a page replacement algorithm that removes the page that has been **used the least number of times**. i.e, frequency of the page access is counted.
+   Each page has a **counter** to track how many times it has been accessed. On a page fault, the page with the **lowest frequency count** is removed.
+
+| Feature        | **LFU**                        | **LRU**                          |
+| -------------- | ------------------------------ | -------------------------------- |
+| Replaces       | Least recently used page       | Least frequently used page       |
+| Tracks         | **Time of last use**           | **Count of total uses**          |
+| Assumes        | Recent use → future use likely | Frequent use → future use likely |
+| Implementation | Needs timestamps or stack      | Needs counters                   |
+| Weakness       | Costly to maintain in hardware | Doesn’t forget old usage easily  |
+
