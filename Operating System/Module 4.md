@@ -40,7 +40,8 @@ Here, a process in its entirety is loaded into the memory at one go, if enough s
 If no partition is free, but there is a new process ready to be loaded, one of the processes, not ready to run, is swapped out of the partition. partitioning can be done using fixed boundaries or adjustable boundaries as detailed below.
 
 #### Fixed partitioning
-The OS divides the available space into a few partitions before actual space allocation to processes. The partitions can be of either equal or unequal size
+The OS divides the available space into a few partitions before actual space allocation to processes. The partitions can be of either equal or unequal size.
+
 ![](./images/fixed_partitioning.png)
 
 ***Equal partitions:*** All the partitions are of equal size. **If a process fits within the size, it is allocated a partition, otherwise it is denied**. Either the developer must manage using overlaying or the program is not run at all. 
