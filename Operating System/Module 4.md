@@ -26,7 +26,7 @@ If a program is large, requiring more than available memory, it cannot be loaded
 
 The program had to be designed into several parts (modules) so that the main module with a currently executed one along with its necessary data fit in the available memory. 
 
-==When another module needed to be loaded, it used to replace the in-memory counterpart from the secondary memory. This technique is called **overlaying**==
+<mark style="background: #FFF3A3A6;">When another module needed to be loaded, it used to replace the in-memory counterpart from the secondary memory. This technique is called **overlaying**</mark>
 
 three basic schemes. 
 1. Contiguous Allocation: a process in its entirety is allocated contiguous memory space .
@@ -40,7 +40,8 @@ Here, a process in its entirety is loaded into the memory at one go, if enough s
 If no partition is free, but there is a new process ready to be loaded, one of the processes, not ready to run, is swapped out of the partition. partitioning can be done using fixed boundaries or adjustable boundaries as detailed below.
 
 #### Fixed partitioning
-The OS divides the available space into a few partitions before actual space allocation to processes. The partitions can be of either equal or unequal size![][][](./images/fixed_partitioning.png)
+The OS divides the available space into a few partitions before actual space allocation to processes. The partitions can be of either equal or unequal size
+![](./images/fixed_partitioning.png)
 
 ***Equal partitions:*** All the partitions are of equal size. **If a process fits within the size, it is allocated a partition, otherwise it is denied**. Either the developer must manage using overlaying or the program is not run at all. 
 
@@ -54,6 +55,7 @@ This scheme can reduce internal fragmentation with an increased overhead of extr
 #### Variable-Partitioning
 Here the partitioning is not done apriori but done at the time of space allocation. As the processes arrive, available space is allocated to them from one end of the memory exactly as per their need. When no more space is available, either the new process is denied, or a not-ready process is swapped out.
 The partitions are thus dynamically created. They are of variable sizes. However, when processes leave the memory or are swapped out, new processes need not be of the same size. ***When a new process of smaller size replaces an old process, the boundary comes closer, and a ‘hole’ is created in memory.***
+
 ![](./images/dynamic_partitioning.png)
 
 The partition gets smaller, and the fragmentation is outside the partition. This phenomenon is different from internal fragmentation discussed in fixed partitioning and is called ***external fragmentation***.
@@ -86,15 +88,16 @@ Each segment is assigned a number (numbering is not done by the OS, but by eithe
 
 ### Virtual-Memory
 ---
-**Virtual memory allows partial loading of a process to begin its execution.** The OS thus starts by loading only the initial piece of the process (a few pages or a segment) to the memory that includes the initial set of instructions and the data that it refers to. This portion of the process that is in the memory is called the ***resident set of the process***
+**Virtual memory allows partial loading of a process to begin its execution.** The OS thus starts by loading only the initial piece of the process (a few pages or a segment) to the memory that includes the initial set of instructions and the data that it refers to. This portion of the process that is in the memory is called the ***resident set of the process***.
 
 Execution goes smoothly if memory references are within the resident set. However, when the references are beyond it, as flagged by the page table or the segment table, an software interrupt is generated indicating a memory access fault.
 
 The OS then suspends the ongoing process and puts it in the waiting state. The OS also issues a disk I/O request to bring the page or the segment corresponding to the logical address that caused the memory access fault. 
 
 Once the demanded piece (page or segment) is brought to the memory, an I/O completion interrupt through the processor notifies the OS. The OS then places the blocked process to the ready queue to resume its execution. When there is not enough space in the main memory, some piece of the process address space is replaced to the backing store of the secondary memory.
-![](./images/virtual-memory.png)As shown in 
-Fig 5.20, ***a portion of the secondary memory serves as a backing store of the active processes. While some portions of a process remain in the main memory, other portions are stored in a designated area of the secondary memory. This backing store in the secondary memory is what creates the virtual memory. This is also known as swap space.*** During OS installation, a hard disk is formatted with sufficient space for the swap space (usually kept equal to the size of the main memory space or higher).
+![](./images/virtual-memory.png)
+
+As shown in Fig 5.20, ***a portion of the secondary memory serves as a backing store of the active processes. While some portions of a process remain in the main memory, other portions are stored in a designated area of the secondary memory. This backing store in the secondary memory is what creates the virtual memory. This is also known as swap space.*** During OS installation, a hard disk is formatted with sufficient space for the swap space (usually kept equal to the size of the main memory space or higher).
 
 
 ### simplified version
@@ -140,7 +143,8 @@ A page-fault incurs the logistic and temporal cost of several operations:
    This is the simplest page replacement algorithm. In this algorithm, the operating system keeps track of all pages in the memory in a queue, the oldest page is in the front of the queue. When a page needs to be replaced page in the front of the queue is selected for removal.
    
    ****Example 1:**** Consider page reference string 1, 3, 0, 3, 5, 6, 3 with 3-page frames. Find the number of page faults using FIFO Page Replacement Algorithm.
-   ![](https://media.geeksforgeeks.org/wp-content/uploads/20241023184328270600/page1.jpg)
+   
+    ![](https://media.geeksforgeeks.org/wp-content/uploads/20241023184328270600/page1.jpg)
 
 2. **LRU (Least Recently Used)**
    **LRU** is a page replacement algorithm that removes the page that has **not been used for the longest time**.Each time a page is accessed, it is marked with the **current time** (or moved to the front of a list).
