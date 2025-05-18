@@ -1,5 +1,4 @@
 
-
 ## Device Controller
 ---
 **All I/O devices are connected to the computer through a device controller or I/O controller.** A controller is an electronic unit with different levels of circuits. For example, a serial-port controller can contain a small chip that controls signals on a few wires.
@@ -13,7 +12,9 @@ Each controller implements a few registers, known as control registers or operat
 2. Status 
 3. Input 
 4. Output
+
 ![](images/io_controller_and_device_registers.png)
+
 ***The CPU sends the instruction by populating the Command port. It also provides the input data to the device by writing on the Input ports. When the I/O is complete or stops due to error(s), it is notified to the CPU by an appropriate status message written on the Status port. The output of the device, if any, is written by the device on the Output register, which is read by the CPU.*** 
 
 There may be other registers as well, like configuration registers used for configuring the controller during initialization. Again, sometimes, more than one category of ports are merged. These ports exchange data with CPU registers
@@ -46,3 +47,43 @@ For data transfer between main memory and an I/O device, the CPU is involved in 
 ![](images/dma.png)
 
 When DMA transfers data of one byte or one word at a time, it uses the host bus in an interleaved fashion along with other activities of the CPU. This intermittent use of the host bus is also called cycle stealing of DMA transfer. DMA can also use burst mode or block transfer mode where DMA uses the host bus uninterrupted. Other devices are not allowed to use the system bus at that time. Obviously, the bus needs to support the burst mode. DMA can also transfer data in a single clock cycle at high-speed bypassing the DMA registers. DMA needs to activate necessary control signals at both the source and the destination. For example, for a secondary memory to main memory transfer, DMA simultaneously enables read signal at the secondary memory and write request to the main memory. This mode of data transfer is called fly-by mode or single-access mode.
+
+### Interrupts
+---
+Interrupts are signals that I/O devices raise to draw the attention of a CPU (Sec 3.1.2.1). Modern computing systems are mostly interrupt-driven. Computers achieve multiprogramming because of interrupts. An interrupt disrupts the normal activity of a CPU. Normally a CPU sequentially executes instructions of a program. An interrupt forces it to stop and execute another set of instructions from another program. At the end of each instruction, the CPU checks the interrupt request line (INTR) and needs to handle the interrupt, if there is any.
+
+While handling of a few interrupts can be deferred during critical processing (by masking low priority interrupts), some interrupts need immediate attention of the operating system. Interrupt handling thus requires hardware mechanisms (like identifying an interrupt type, its priority-level, assigning a number to it, putting an entry in the interrupt vector table and pointing to the memory address corresponding to its interrupt service routine or ISR through a pointer etc.) and necessary software like the ISR to handle the interrupt. 
+
+The goals of the interrupt handlers are the following. 
+- A CPU should not be held back and kept idle while an I/O operation is in progress. Both can be concurrently done, and an interrupt should serve as a mode of communication between the two.
+- An I/O device should notify the CPU when it needs to, by raising an interrupt.
+- Not all I/O devices are of equal priorities. When a critical processing is going on, the CPU can disable or defer (by masking) the interrupt from a low-priority device. 
+- An operating system must distinguish between high- and low-priority interrupts so that it can respond with an appropriate degree of urgency in case of multiple concurrent interrupts.
+
+### Disk
+---
+Disk-access time = seek-time + rotational latency.
+Once the sector is perfectly located, data transfer can take place. Including data transfer, effective disk access time = seek-time + rotational latency + data transfer time.
+
+An operating system, responsible for overall performance of a system, tries to therefore reduce the seek time through proper scheduling of the disk accesses. For a multiprogramming system, requests for disk access come continuously from different processes. When one request is attended, the others wait in the disk queue. 
+
+#### First come First Serve(FCFS) Scheduling
+---
+This is the simplest possible algorithm as all the requests are met in the same order as they appear in the wait queue for the disk. 
+
+#### Shortest Seek Time First (SSTF) Scheduling
+---
+R/W head movement is costly, it increases seek time. It can be reduced if the head moves to the nearest cylinder among the pending requests from its current position. This is the idea behind the SSTF algorithm. Before moving the head each time, the closest cylinder number is searched from the remaining requests and the head goes to that cylinder.
+
+The algorithm is elegant and easily implementable. However, it suffers from a few problems. The algorithm always looks for the local minimum (the closest cylinder from the current position) without considering the global minimum. Hence, it can involve few back-and-forth movements of the head (though much less than FCFS). More serious is the starvation problem. When some requests keep on coming that are near the current head, they will be served before an old request that is far off from the current position  
+
+#### SCAN Scheduling
+---
+In the SCAN algorithm, the r/w arm moves in one direction at a time ***till it reaches the end***: either it goes in the direction of increasing cylinder number (from periphery to the center) or the opposite (from center to periphery). While going in a particular direction, it serves all the requests until it reaches the end. After that it changes the direction and serves the remaining requests in the opposite direction.
+
+####  Circular SCAN (C-SCAN) scheduling
+---
+C-scan is similar to SCAN, where it only moves a said direction and reaches till the end. On the returning it will not serve any request and reaches the other far end.
+
+suppose the range is from 0 - 199, c-scan starts from 52(forward direction) 
+first it moves to the end 199, while serving the requests and then goes to 0 while not serving any request. after reaching 0 it starts fulfilling the requests.
