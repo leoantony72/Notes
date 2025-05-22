@@ -299,3 +299,48 @@ With the technical background given above, we can now define a deadlock more pre
 ![](./images/RAG_WITH_multiple_instances.png)
 
 4. **Unresolvable Circular Wait:** A set of threadsܶ  **T = {T₁, T₂, ..., Tₙ}** A set of resources: **R = {R₁, R₂, ..., Rₙ}**. - **R₁ → T₁**: Resource R₁ is _assigned_ to T₁ **T₁ → R₂**: T₁ is _requesting_ R₂, **R₂ → T₂**: R₂ is _assigned_ to T₂, **Rₙ → Tₙ**, **Tₙ → R₁**: Tₙ is _requesting_ R₁. Formation of the cycle in the RAG (Fig 4.8) is a confirmation of a deadlock when there are only single instances of each of the resources. If the number of instances for even a single resource is more than one, even though there is a cycle - there may not be a deadlock if all the requests can be satisfied.
+
+
+## 15.Deadlock-Prevention
+---
+The four methods are:
+1. Prevention
+2. Avoidance
+3. Detection and recovery
+4. Ignore (used in UNIX, ignore and restart)
+
+
+
+**DEADLOCK PREVENTION**
+For a deadlock to occur, each of the four necessary conditions (mutual exclusion, Hold and wait, No preemption, Circular wait) must hold. By ensuring that at least one of these conditions cannot
+hold, we can prevent the occurrence of a deadlock.
+
+**Mutual Exclusion**
+- Make all the non-sharable resources sharable.
+- Make all the non-sharable resources sharable. • The mutual-exclusion condition must hold for non-sharable resources. For example, a printer cannot be simultaneously shared by several processes.
+- Sharable resources, on the other hand, do not require mutually exclusive access, and thus cannot be involved in a deadlock.
+- Read-only files are a good example of a sharable resource. We cannot prevent deadlocks by denying the mutual-exclusion condition because some resources are intrinsically non-sharable and mutual exclusion is one of the requirements of the critical section problems solution.
+
+**Hold and Wait**
+- ***A process may not request a resource if it is holding another resource.***
+- So, to take the print out of the contents of a file, you first request the disk, and then you get it, use it and release it.
+- Then you request the printer, you get it, use it, and then you release it.
+- Thus, it implies that a process should have released all its resources before it requests for additional.
+
+**No preemption**
+**1.** If a process is holding some resources and requests another resource that cannot be immediately allocated to it (that is, the process must wait), then **all resources currently being held are preempted**.
+
+- In other words, these resources are implicitly released.
+- The preempted resources are added to the list of resources for which the process is waiting.
+- The process will be restarted only when it can regain its old resources, as well as the new ones that it is requesting.
+
+**2.** Alternatively, if a process requests some resources, we first check whether they are available.
+
+- If they are, we allocate them.
+- If they are not available, we check whether they are allocated to some other process that is waiting for additional resources.
+- If so, we **preempt the desired resources** from the waiting process and allocate them to the requesting process.
+
+**Circular Wait**
+- For avoiding circular wait, we use a **numbering scheme**.
+- We can assign a **number for all resources**.
+- So each process has to request resources in a **particular order**.
