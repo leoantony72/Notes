@@ -45,8 +45,11 @@
 	2. Picks one of the server to be the new primary and others to be secondary server. Master grants the primary the lease.
 2. Master increments the version number to disk
 3. Tells the primary and secondary to increment the version number
-4. Client writes data to the chunk(in primary server).
-5. Replicates the changes to the replicas
+4. The client **streams the data** to the primary chunk server, which stores the chunk and then forwards the data to the secondary servers (the replicas).
+5. The chunk servers accept the data in a **pipelined fashion**, meaning:
+    - The primary chunk server writes the chunk to its local disk.
+    - The primary server then **streams the chunk data** to the second replica, which stores the chunk, and finally, to the third replica.
+	- This **pipelining** ensures that data is written in parallel to all replicas without waiting for one server to finish before moving to the next.
 
 
 #### During a Master reboot
@@ -56,3 +59,11 @@
 #### Real world use
 1. GFS is completely stored in a single Data Center, not optimal for global distribution.
 2. Big Sequential access.
+
+
+### Conclusion
+---
+- Single point of failure, If the Master goes down entire system fails.
+- Poor handling of Small Files, GFS introduces a significant overhead, as each file is stored as a chunk with its own metadata, and many small files can overwhelm the master node. only a small part of a chunk is used by a small file, the rest of the chunk remains wasted.
+- GFS does not support atomic updates for multiple chunks.
+- Optimized for large files
