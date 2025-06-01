@@ -1,7 +1,7 @@
 #### References
 ----
  - Operating Systems Book by Sukomal Pal
-#### Syllabus
+## Syllabus
 ---------
 1. [Process, Process State](#1.Process-and-Process-State)
 2. [Process Control Block (PCB)](#2.Process-Control-Block-(PCB))

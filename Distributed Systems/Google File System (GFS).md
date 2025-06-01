@@ -1,4 +1,5 @@
 
+---
 **GFS** fixes the bad replication design shown below, The below design causes **inconsistency issue** when multiple clients wants to update the same key at the same time.
 
 ![[Distributed Systems/distributed_system.excalidraw.md#^group=w7yhjii_29JvVUmrq7hWx|400]]
