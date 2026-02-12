@@ -37,7 +37,8 @@ npm install axios
 
 ## Basics
 ---
-**1. A component = reusable UI function.**
+##### 1. A component = reusable UI function.
+----
 ```node
 function Welcome() {
   return <h1>Hello Leo</h1>
@@ -51,8 +52,8 @@ use it like this
 <Welcome />
 ```
 
-
-**2.JSX (HTML inside JavaScript)**
+##### 2.JSX (HTML inside JavaScript)
+---
 ```node
 function App() {
   const name = "Leo"
@@ -64,10 +65,8 @@ function App() {
   )
 }
 ```
-
-
-**3.Props (Passing Data Between Components)**
-
+##### 3.Props (Passing Data Between Components)
+---
 Props = parameters for components.
 ```node
 <Profile name="Leo" age={20} />
@@ -78,7 +77,8 @@ function Profile({ name, age }) {
 }
 ```
 
-**4.State (Dynamic Data)**
+##### 4.State (Dynamic Data)
+---
 State lets UI update automatically.
 
 Use `useState`
